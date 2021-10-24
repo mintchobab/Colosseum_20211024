@@ -10,12 +10,18 @@ class ServerUtil {
     // static에 대응되는 기능 활용
     companion object{
 
+        // 돌아온 응답을 화면에 전달 : 나(ServerUtil) 에게 발생한 일을 => 화면단에서 대신 처리해달라고 하자. (interface 활용)
+        interface JsonResponseHandler {
+            fun onResponse( jsonObj: JSONObject )
+        }
+
         // 어느 서버로 가는가? BASE_URL을 미리 변수에 담아두자.
         val BASE_URL = "http://54.180.52.26"
 
         // 이 { } 안에 적는 코드들은 다른 클래스에서 ServerUtil.변수/기능 활용 가능.
+        // handler : 화면단에서 적어주는, 응답을 어떻게 처리할지 대처 방안이 담긴 인터페이스 변수.
 
-        fun postRequestLogin( email: String, pw: String ){
+        fun postRequestLogin( email: String, pw: String, handler: JsonResponseHandler? ){
 
             // 1. 어디로 요청하러 ( 인터넷 주소 연결 - URL ) 갈것인가?
             val urlString = "${BASE_URL}/user"
@@ -60,27 +66,10 @@ class ServerUtil {
 
                     Log.d("서버응답본문", jsonObj.toString())
 
-                    // 연습. code 숫자 추출. 로그인 성공 여부 판단 -> 로그로 출력
-                    // "code" 숫자 -> 제일 큰 중괄호 (jsonObj) 에 바로 달려있음. -> jsonObj에게 찾아달라고 하자.
-                    val codeNum = jsonObj.getInt("code")
-                    Log.d("로그인 코드값", codeNum.toString())
+                    // 화면단에서 응답에 대한 처리방안을 제시했다면 (handler가 null 아니라면 - 실체가 있다면)
+                    // 처리방법대로 하도록 명령.
 
-
-                    // 연습. 로그인에 성공했을 때만, 성공한 사람의 닉네임을 로그로 출력.
-
-                    if (codeNum == 200){
-
-                        // data 이름표가 붙은 { } 를 추출하자. => 그 내부를 파고들 수 있다.
-                        val dataObj = jsonObj.getJSONObject("data")
-
-                        // user { } 추출. -> 그 내부의 닉네임을 추출하자.
-                        val userObj = dataObj.getJSONObject("user")
-
-                        val nickname = userObj.getString("nick_name")
-
-                        Log.d("로그인한 사람", nickname)
-
-                    }
+                    handler?.onResponse(jsonObj)
 
                 }
 
