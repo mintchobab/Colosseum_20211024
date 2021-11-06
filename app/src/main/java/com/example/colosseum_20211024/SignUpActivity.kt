@@ -5,12 +5,18 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.example.colosseum_20211024.databinding.ActivitySignUpBinding
 
-class SignUpActivity : AppCompatActivity() {
+class SignUpActivity : BaseActivity() {
 
     lateinit var binding : ActivitySignUpBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_sign_up)
+    }
+
+    override fun setupEvents() {
+    }
+
+    override fun setValues() {
     }
 }
