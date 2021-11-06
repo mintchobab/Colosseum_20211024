@@ -7,13 +7,13 @@ import java.io.IOException
 
 class ServerUtil {
 
+    // 돌아온 응답을 화면에 전달 : 나(ServerUtil) 에게 발생한 일을 => 화면단에서 대신 처리해달라고 하자. (interface 활용)
+    interface JsonResponseHandler {
+        fun onResponse( jsonObj: JSONObject )
+    }
+
     // static에 대응되는 기능 활용
     companion object{
-
-        // 돌아온 응답을 화면에 전달 : 나(ServerUtil) 에게 발생한 일을 => 화면단에서 대신 처리해달라고 하자. (interface 활용)
-        interface JsonResponseHandler {
-            fun onResponse( jsonObj: JSONObject )
-        }
 
         // 어느 서버로 가는가? BASE_URL을 미리 변수에 담아두자.
         val BASE_URL = "http://54.180.52.26"

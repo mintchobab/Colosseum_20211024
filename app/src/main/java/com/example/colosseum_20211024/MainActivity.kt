@@ -41,7 +41,7 @@ class MainActivity : BaseActivity() {
             Log.d("입력비번", inputPw)
 
             // 서버의 로그인 기능에 전달.
-            ServerUtil.postRequestLogin(inputEmail, inputPw, object : ServerUtil.Companion.JsonResponseHandler{
+            ServerUtil.postRequestLogin(inputEmail, inputPw, object : ServerUtil.JsonResponseHandler {
 
                 override fun onResponse(jsonObj: JSONObject) {
 
