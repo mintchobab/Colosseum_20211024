@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
 
                     // 로그인 성공시 -> 성공 토스트
                     // 실패시 -> 왜 실패했는지 서버가 알려주는대로 토스트
-
                     if (code == 200){
 
                         runOnUiThread {
@@ -46,6 +45,13 @@ class MainActivity : AppCompatActivity() {
 
                     }
                     else{
+
+                        // 서버가 알려주는 로그인 실패 사유 파싱 -> 토스트
+                        val message = jsonObj.getString("message")
+
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "message", Toast.LENGTH_SHORT).show()
+                        }
 
                     }
 
