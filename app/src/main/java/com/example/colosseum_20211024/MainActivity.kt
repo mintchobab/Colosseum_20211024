@@ -1,21 +1,31 @@
 package com.example.colosseum_20211024
 
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import com.example.colosseum_20211024.adapters.TopicAdapter
 import com.example.colosseum_20211024.databinding.ActivityMainBinding
+import com.example.colosseum_20211024.datas.TopicData
+import com.example.colosseum_20211024.utils.ContextUtil
 import com.example.colosseum_20211024.utils.ServerUtil
 import org.json.JSONObject
 
 class MainActivity : BaseActivity() {
 
-    lateinit var binding : ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
+
+    lateinit var mTopicAdapter: TopicAdapter
+
+    val mTopicList = ArrayList<TopicData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setupEvents()
         setValues()
@@ -23,66 +33,113 @@ class MainActivity : BaseActivity() {
 
     override fun setupEvents() {
 
-        binding.signUpBtn.setOnClickListener {
+        binding.topicListView.setOnItemClickListener { adapterView, view, position, l ->
 
-            val myIntent = Intent(mContext, SignUpActivity::class.java)
+            // 연습 - 클릭한 주제의 제목을 토스트로
+            val clickedTopic = mTopicList[position]
+
+            //Toast.makeText(mContext, clickedTopic.title, Toast.LENGTH_SHORT).show()
+
+            // 실제 - 클릭한 주제 상세보기 => 주제 데이터를 들고 이동.
+
+            val myIntent = Intent(mContext, ViewTopicDetailActivity::class.java)
+            myIntent.putExtra("topic", clickedTopic)
             startActivity(myIntent)
 
         }
 
-        binding.loginBtn.setOnClickListener {
+        /*
+        binding.logoutBtn.setOnClickListener {
 
-            // 입력한 이메일 / 비번을 데이터바인딩으로 가져오기.
-            val inputEmail = binding.emailEdt.text.toString()
-            val inputPw = binding.passwordEdt.text.toString()
+            // 로그아웃 구현 => 진짜 로그아웃?
 
-            // 가져온 이메일 / 비번을 로그로 출력
-            Log.d("입력이메일", inputEmail)
-            Log.d("입력비번", inputPw)
+            val alert = AlertDialog.Builder(mContext)
+            alert.setTitle("로그아웃")
+            alert.setMessage("정말 로그아웃 하시겠습니까?")
+            alert.setPositiveButton("확인", DialogInterface.OnClickListener { dialogInterface, i ->
 
-            // 서버의 로그인 기능에 전달.
-            ServerUtil.postRequestLogin(inputEmail, inputPw, object : ServerUtil.JsonResponseHandler {
+                // 확인 눌리면 할 일 -> 로그아웃
+                // 로그아웃 : 저장된 토큰값을 파기 (토큰 제거)
+                ContextUtil.setToken(mContext, "")
 
-                override fun onResponse(jsonObj: JSONObject) {
+                val myIntent = Intent(mContext, SplashActivity::class.java)
+                startActivity(myIntent)
 
-                    // 화면단에서 jsonObj 분석 -> 상황에 맞는 UI 처리.
-                    val code = jsonObj.getInt("code")
-
-                    // 로그인 성공시 -> 성공 토스트
-                    // 실패시 -> 왜 실패했는지 서버가 알려주는대로 토스트
-                    if (code == 200){
-
-                        runOnUiThread {
-
-                            val dataObj = jsonObj.getJSONObject("data")
-                            val userObj = dataObj.getJSONObject("user")
-                            val nickname = userObj.getString("nick_name")
-
-                            Toast.makeText(mContext, "${nickname}님 환영합니다.", Toast.LENGTH_SHORT).show()
-                        }
-
-                    }
-                    else{
-
-                        // 서버가 알려주는 로그인 실패 사유 파싱 -> 토스트
-                        val message = jsonObj.getString("message")
-
-                        runOnUiThread {
-                            Toast.makeText(mContext, "message", Toast.LENGTH_SHORT).show()
-                        }
-
-                    }
-
-                }
+                finish()
 
             })
+            alert.setNegativeButton("취소", null)
+            alert.show()
 
         }
+         */
     }
+
+
+/*
+    override fun setupEvents() {
+
+
+
+    }
+    */
 
     override fun setValues() {
 
+        // 연습 - 내 정보 받아오기 호출 => 닉네임 파싱, 텍스트뷰에 반영
+        //ServerUtil.
 
+        //  /v2/main_info API가 토론 주제 목록을 내려줌.
+        //  서버 호출 => 파싱해서, mTopicList를 채워주자.
+        getTopicListFromServer()
+
+
+        // 3강 2번째 시간
+        //TopicAdapter(mContext, R.layout.topic_list_item, mTopicList);
+        //binding.topicListView.adapter = mTopicAdapter
+
+    }
+
+    fun getTopicListFromServer() {
+
+        ServerUtil.getRequestMainInfo(mContext, object : ServerUtil.JsonResponseHandler {
+
+            override fun onResponse(jsonObj: JSONObject) {
+
+                val dataObj = jsonObj.getJSONObject("data")
+                val topicsArr = dataObj.getJSONArray("topics")
+
+                // 0번째 주제 ~  topicsArr 갯수 직전까지를 반복.
+                // 5개 주제 : 0 ~ 4번 주제까지. (5개)
+
+                for (index in 0 until topicsArr.length()) {
+
+                    // [ ] 안에 있는 { }를 순서대로 찾아내서 파싱하지
+                    val topicObj = topicsArr.getJSONObject(index)
+
+                    // topicObj는 토론 주제에 필요한 데이터를 들고 있다.
+                    // TopicData() 형태를 변환해주자. => 목록에 추가해주자.
+
+                    val topicData = TopicData()
+                    topicData.id = topicObj.getInt("id")
+                    topicData.title = topicObj.getString("title")
+                    topicData.imageURL = topicObj.getString("img_url")
+
+                    // 만들어진 topicData를 목록에 추가
+                    mTopicList.add(topicData)
+                }
+
+                // for문이 끝나면, mTopicList에 모든 토론 주제가 추가된 상태다.
+                // 어댑터가 변경사항을 감지하도록 처리하자.
+
+                runOnUiThread {
+                    mTopicAdapter.notifyDataSetChanged()
+                }
+
+            }
+
+
+        })
 
     }
 }

@@ -8,12 +8,13 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.colosseum_20211024.R
+import com.example.colosseum_20211024.datas.ReplyData
 import com.example.colosseum_20211024.datas.TopicData
 
-class TopicAdapter(
+class ReplyAdapter(
     val mContext: Context,
     resId: Int,
-    val mList: List<TopicData>) : ArrayAdapter<TopicData>(mContext, resId, mList) {
+    val mList: List<ReplyData>) : ArrayAdapter<ReplyData>(mContext, resId, mList) {
 
     val mInflater = LayoutInflater.from(mContext)
 
@@ -21,23 +22,16 @@ class TopicAdapter(
 
         var tempRow = convertView
         if (tempRow == null) {
-            tempRow = mInflater.inflate(R.layout.topic_list_item, null)
+            tempRow = mInflater.inflate(R.layout.reply_list_item, null)
         }
 
         val row = tempRow!!
 
-        val topicData = mList[position]
+        val data = mList[position]
 
-        val topicImg = row.findViewById<ImageView>(R.id.topicImg)
-        val topicTitleTxt = row.findViewById<TextView>(R.id.topicTitleTxt)
+        val contentTxt = row.findViewById<TextView>(R.id.contentTxt)
 
-        val replyCountTxt = row.findViewById<TextView>(R.id.replyCountTxt)
-
-        topicTitleTxt.text = topicData.title
-
-        Glide.with(mContext).load(topicData.imageURL).into(topicImg)
-
-        replyCountTxt.text = "현재 의견 : ${topicData.replyCount}개"
+        contentTxt.text = data.content
 
         return row
     }

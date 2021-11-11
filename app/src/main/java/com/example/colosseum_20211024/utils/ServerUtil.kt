@@ -1,5 +1,6 @@
 package com.example.colosseum_20211024.utils
 
+import android.content.Context
 import android.util.Log
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -136,6 +137,92 @@ class ServerUtil {
                 .build()
 
             // 3. Request 완성 => 서버에 호출 하면 된다. Client로 동작.
+            val client = OkHttpClient()
+
+            client.newCall(request).enqueue(object : Callback{
+                override fun onFailure(call: Call, e: IOException) {
+
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val bodyString = response.body!!.string()
+                    val jsonObj = JSONObject(bodyString)
+                    Log.d("서버응답본문", jsonObj.toString())
+                    handler?.onResponse(jsonObj)
+                }
+
+            })
+
+        }
+
+
+        fun getRequestMyInfo(context: Context, handler: JsonResponseHandler?) {
+
+        }
+
+
+        // 메인 화면에 필요한 데이터 조회 (토론 주제 목록도 조회)
+
+        fun getRequestMainInfo(context: Context, handler: JsonResponseHandler?) {
+
+            val urlBuilder = "${BASE_URL}"
+
+            //val urlString = urlBuilder.s
+        }
+
+
+        fun getRequestTopicDetail(context: Context, topicId: Int, orderType: String, handler: JsonResponseHandler?) {
+
+            val urlBuilder = "${BASE_URL}/topic".toHttpUrlOrNull()!!.newBuilder()
+
+            // Path 첨부 : /topic/3  양식. => 이름표 작성 X.
+            urlBuilder.addPathSegment(topicId.toString())
+
+            // Query 첨부 : 주소? order_type=NEW 양식. => 이름표 작성 O
+            urlBuilder.addEncodedQueryParameter("order_type", orderType)
+
+            val urlString = urlBuilder.toString()
+
+            val request = Request.Builder()
+                .url(urlString)
+                .get()
+                .header("X-Http_Token", ContextUtil.getToken(context))
+                .build()
+
+            // 3. Request 완성 => 서버에 호출 하면 된다. Client로 동작.
+            val client = OkHttpClient()
+
+            client.newCall(request).enqueue(object : Callback{
+                override fun onFailure(call: Call, e: IOException) {
+
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val bodyString = response.body!!.string()
+                    val jsonObj = JSONObject(bodyString)
+                    Log.d("서버응답본문", jsonObj.toString())
+                    handler?.onResponse(jsonObj)
+                }
+
+            })
+        }
+
+
+        // 토론 진영에 투표하기
+        fun postRequestVote( context: Context, sideId: Int, handler: JsonResponseHandler?) {
+
+            val urlString = "${BASE_URL}/topic_vote"
+
+            val formData = FormBody.Builder()
+                .add("side_id", sideId.toString())
+                .build()
+
+            val request = Request.Builder()
+                .url(urlString)
+                .post(formData)
+                .header("X-Http_Token", ContextUtil.getToken(context))
+                .build()
+
             val client = OkHttpClient()
 
             client.newCall(request).enqueue(object : Callback{
