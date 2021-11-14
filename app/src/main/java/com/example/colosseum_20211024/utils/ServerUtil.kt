@@ -80,6 +80,7 @@ class ServerUtil {
 
         }
 
+
         // 회원가입 기능
         fun putRequestSignUp(email: String, pw: String, nickname: String, handler: JsonResponseHandler?){
 
@@ -113,6 +114,7 @@ class ServerUtil {
             })
 
         }
+
 
         // 중복 확인 기능
         fun getRequestDuplCheck(type: String, value: String, handler: JsonResponseHandler?) {
@@ -263,6 +265,7 @@ class ServerUtil {
             })
         }
 
+
         // 토론 진영에 투표하기
         fun postRequestVote( context: Context, sideId: Int, handler: JsonResponseHandler?) {
 
@@ -270,6 +273,41 @@ class ServerUtil {
 
             val formData = FormBody.Builder()
                 .add("side_id", sideId.toString())
+                .build()
+
+            val request = Request.Builder()
+                .url(urlString)
+                .post(formData)
+                .header("X-Http_Token", ContextUtil.getToken(context))
+                .build()
+
+            val client = OkHttpClient()
+
+            client.newCall(request).enqueue(object : Callback{
+                override fun onFailure(call: Call, e: IOException) {
+
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val bodyString = response.body!!.string()
+                    val jsonObj = JSONObject(bodyString)
+                    Log.d("서버응답본문", jsonObj.toString())
+                    handler?.onResponse(jsonObj)
+                }
+
+            })
+
+        }
+
+
+        // 댓글에 좋아요 / 싫어요 찍기기
+        fun postRequestReplyLikeOrDislike( context: Context, replyId: Int, isLike: Boolean, handler: JsonResponseHandler?) {
+
+            val urlString = "${BASE_URL}/topic_reply_like"
+
+            val formData = FormBody.Builder()
+                .add("reply_id", replyId.toString())
+                .add("is_like", isLike.toString())
                 .build()
 
             val request = Request.Builder()
