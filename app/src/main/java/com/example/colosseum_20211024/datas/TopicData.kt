@@ -47,7 +47,7 @@ class TopicData(
 
                 val sideObj = sidesArr.getJSONObject(i)
 
-                val sideData = SideData.getSideDataFromJSON()
+                val sideData = SideData.getSideDataFromJSON(sideObj)
 
                 topicData.sideList.add(sideData)
             }

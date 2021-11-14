@@ -26,6 +26,16 @@ class LoginActivity : BaseActivity() {
 
     override fun setupEvents() {
 
+        binding.autoLoginCheckBox.setOnCheckedChangeListener { compoundButton, isChecked ->
+
+            Toast.makeText(mContext, isChecked.toString(), Toast.LENGTH_SHORT).show()
+
+            // isChecked : 클릭되어서 변경된 최종 상태값을 알려준다.
+            // ContextUtil에 변경된 값 저장.
+            ContextUtil.setAutoLogin(mContext, isChecked)
+
+        }
+
         binding.signUpBtn.setOnClickListener {
 
             val myIntent = Intent(mContext, SignUpActivity::class.java)
@@ -81,7 +91,7 @@ class LoginActivity : BaseActivity() {
                         val message = jsonObj.getString("message")
 
                         runOnUiThread {
-                            Toast.makeText(mContext, "message", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show()
                         }
 
                     }
@@ -95,5 +105,12 @@ class LoginActivity : BaseActivity() {
     }
 
     override fun setValues() {
+
+        binding.autoLoginCheckBox.isChecked = ContextUtil.getAutoLogin(mContext)
+
     }
+
+
+
+
 }

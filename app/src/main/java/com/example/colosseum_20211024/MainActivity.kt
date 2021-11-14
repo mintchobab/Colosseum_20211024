@@ -76,29 +76,32 @@ class MainActivity : BaseActivity() {
     }
 
 
-/*
-    override fun setupEvents() {
-
-
-
-    }
-    */
-
     override fun setValues() {
 
         // 연습 - 내 정보 받아오기 호출 => 닉네임 파싱, 텍스트뷰에 반영
-        //ServerUtil.
+        ServerUtil.getRequestMyInfo(mContext, object : ServerUtil.JsonResponseHandler {
+            override fun onResponse(jsonObj: JSONObject) {
+
+                val dataObj = jsonObj.getJSONObject("data")
+                val userObj = dataObj.getJSONObject("user")
+                val nickname = userObj.getString("nick_name")
+
+                runOnUiThread {
+                    binding.nicknameTxt.text = nickname
+                }
+
+            }
+        })
 
         //  /v2/main_info API가 토론 주제 목록을 내려줌.
         //  서버 호출 => 파싱해서, mTopicList를 채워주자.
         getTopicListFromServer()
 
-
-        // 3강 2번째 시간
-        //TopicAdapter(mContext, R.layout.topic_list_item, mTopicList);
-        //binding.topicListView.adapter = mTopicAdapter
+        TopicAdapter(mContext, R.layout.topic_list_item, mTopicList);
+        binding.topicListView.adapter = mTopicAdapter
 
     }
+
 
     fun getTopicListFromServer() {
 
@@ -130,7 +133,7 @@ class MainActivity : BaseActivity() {
                 }
 
                 // for문이 끝나면, mTopicList에 모든 토론 주제가 추가된 상태다.
-                // 어댑터가 변경사항을 감지하도록 처리하자.
+                // 어댑터가 변경사항을 감지하도록 처리하자. => 내용 반영 : UI 변경 (백그라운드)
 
                 runOnUiThread {
                     mTopicAdapter.notifyDataSetChanged()

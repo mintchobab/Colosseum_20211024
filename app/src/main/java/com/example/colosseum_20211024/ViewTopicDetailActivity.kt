@@ -3,6 +3,7 @@ package com.example.colosseum_20211024
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import com.bumptech.glide.Glide
 import com.example.colosseum_20211024.adapters.ReplyAdapter
 import com.example.colosseum_20211024.databinding.ActivityViewTopicDetailBinding
 import com.example.colosseum_20211024.datas.ReplyData
